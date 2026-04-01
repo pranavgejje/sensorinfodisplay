@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Sensor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 20px;
+      width: 250px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .value {
+      font-size: 32px;
+      margin-top: 10px;
+    }
+
+    .label {
+      color: #94a3b8;
+    }
+
+    .online {
+      color: #22c55e;
+    }
+
+    .offline {
+      color: #ef4444;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🌍 Live Sensor Dashboard</h1>
+
+<div class="container">
+  
+  <div class="card">
+    <div class="label">Sensor Status</div>
+    <div id="status" class="value">Connecting...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Last Update</div>
+    <div id="time" class="value">--</div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+<script>
+const client = mqtt.connect(
+  'wss://87f47250b02d4bf0847a19f0ffc279bc.s1.eu.hivemq.cloud:8884/mqtt',
+  {
+    username: 'pranavgejje',
+    password: 'Pranavgejje0',
+    clientId: 'web_' + Math.random()
+  }
+);
+
+// connection status
+client.on('connect', () => {
+  document.getElementById("status").innerText = "Connected ✅";
+  document.getElementById("status").className = "value online";
+  client.subscribe('building/lift1');
+});
+
+client.on('reconnect', () => {
+  document.getElementById("status").innerText = "Reconnecting...";
+  document.getElementById("status").className = "value offline";
+});
+
+// receiving data
+client.on('message', (topic, message) => {
+  const data = JSON.parse(message.toString());
+
+  document.getElementById("status").innerText = data.status;
+  document.getElementById("time").innerText = data.time;
+});
+</script>
+
+</body>
+</html>
